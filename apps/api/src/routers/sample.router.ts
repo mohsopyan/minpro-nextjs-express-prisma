@@ -1,23 +1,11 @@
-import { SampleController } from '@/controllers/sample.controller';
+// src/routers/sample.router.ts
 import { Router } from 'express';
+import { getSample } from '@/controllers/sample.controller'; // Pastikan path ini benar
 
-export class SampleRouter {
-  private router: Router;
-  private sampleController: SampleController;
+const router = Router();
 
-  constructor() {
-    this.sampleController = new SampleController();
-    this.router = Router();
-    this.initializeRoutes();
-  }
+// Route untuk sample
+router.get('/sample', getSample);
 
-  private initializeRoutes(): void {
-    this.router.get('/', this.sampleController.getSampleData);
-    this.router.get('/:id', this.sampleController.getSampleDataById);
-    this.router.post('/', this.sampleController.createSampleData);
-  }
-
-  getRouter(): Router {
-    return this.router;
-  }
-}
+// Ekspor router sebagai ekspor default
+export default router;

@@ -1,15 +1,58 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL") 
+}
 
 generator client {
   provider = "prisma-client-js"
 }
 
-datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+enum Role {
+  ATTENDEE
+  ORGANIZER
 }
 
-model Transaction {
-  id Int @id @default(autoincrement())
+model User {
+  id            Int        @id @default(autoincrement()) 
+  email         String     @unique 
+  password      String
+  role          Role       @default(ATTENDEE)
+  referralCode  String     @unique 
+  pointsBalance Int        @default(0)
+  discountExpiresAt DateTime? 
+  createdAt         DateTime  @default(now()) // Pastikan field ini ada
+  updatedAt         DateTime  @updatedAt 
+  referrals     Referral[] @relation("ReferredUsers") // Relasi ke referral yang diterima (referred)
+  referrer      Referral[] @relation("Referrer") // Relasi ke referral yang diberikan (referrer)
+  events        Event[]
+
+  @@index([referralCode])
 }
+
+
+
+model Event {
+  id             Int      @id @default(autoincrement()) 
+  name           String 
+  description    String 
+  location       String 
+  date           DateTime 
+  price          Int // Harga Event dalam IDR
+  availableSeats Int 
+  organizerId    Int // ID User yang menjadi organizer
+  organizer      User     @relation(fields: [organizerId], references: [id]) // Relasi dengan user sebagai organizer
+}
+
+model Referral {
+  id        Int      @id @default(autoincrement()) 
+  userId    Int // ID User yang menerima referral
+  referrerId Int  // ID User yang mengundang
+  points    Int      @default(10000) 
+  createdAt DateTime @default(now()) 
+  expiresAt DateTime // Waktu kadaluarsa poin
+  user      User     @relation("ReferredUsers", fields: [userId], references: [id]) // Relasi ke user yang terdaftar
+  referrer  User     @relation("Referrer", fields: [referrerId], references: [id]) // Relasi ke referrer
+
+  @@index([referrerId]) // Indeks untuk referrerId
+}
+

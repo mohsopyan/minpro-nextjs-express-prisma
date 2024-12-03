@@ -1,34 +1,12 @@
+// src/controllers/sample.controller.ts
+
 import { Request, Response } from 'express';
-import prisma from '@/prisma';
 
-export class SampleController {
-  async getSampleData(req: Request, res: Response) {
-    const sampleData = await prisma.sample.findMany();
-
-    return res.status(200).send(sampleData);
+export const getSample = (req: Request, res: Response) => {
+  try {
+    // Logic untuk menangani GET request ke /sample
+    res.status(200).json({ message: "Sample data retrieved successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Something went wrong" });
   }
-
-  async getSampleDataById(req: Request, res: Response) {
-    const { id } = req.params;
-
-    const sample = await prisma.sample.findUnique({
-      where: { id: Number(id) },
-    });
-
-    if (!sample) {
-      return res.send(404);
-    }
-
-    return res.status(200).send(sample);
-  }
-
-  async createSampleData(req: Request, res: Response) {
-    const { name, code } = req.body;
-
-    const newSampleData = await prisma.sample.create({
-      data: { name, code },
-    });
-
-    return res.status(201).send(newSampleData);
-  }
-}
+};
